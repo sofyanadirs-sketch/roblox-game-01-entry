@@ -1,40 +1,42 @@
--- PengumumanMenang.client.lua
--- LocalScript di StarterPlayerScripts. Menampilkan pengumuman ke SEMUA pemain
--- saat ada yang finis (mabar): siapa juara 1 / finis, waktunya, dan biji kopinya.
--- GUI dibuat di sini (tidak perlu instance GUI di project).
-
-local Players = game:GetService("Players")
+-- Kopi Hitam Rush — pengumuman menang (StarterPlayerScripts, LocalScript).
+-- Tampilkan spanduk saat ada pemain yang sampai ke warung kopi.
+-- Juara pertama (yang paling cepat sampai) dapat label "[JUARA 1!]".
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local player = Players.LocalPlayer
-local umumkan = ReplicatedStorage:WaitForChild("UmumkanMenang")
+local Players = game:GetService("Players")
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "PengumumanMenang"
+gui.Name = "PengumumanMenangGui"
 gui.ResetOnSpawn = false
-gui.Parent = player:WaitForChild("PlayerGui")
+gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
 local label = Instance.new("TextLabel")
 label.Size = UDim2.new(0.8, 0, 0, 80)
-label.Position = UDim2.new(0.1, 0, 0.05, 0)
+label.AnchorPoint = Vector2.new(0.5, 0)
+label.Position = UDim2.new(0.5, 0, 0.1, 0)
 label.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-label.BackgroundTransparency = 0.3
-label.TextColor3 = Color3.fromRGB(255, 220, 60)
-label.TextScaled = true
+label.BackgroundTransparency = 0.2
+label.TextColor3 = Color3.fromRGB(255, 210, 60)
 label.Font = Enum.Font.GothamBold
+label.TextScaled = true
 label.Text = ""
 label.Visible = false
 label.Parent = gui
 
+-- Token: pengumuman baru tidak boleh ditutup oleh timer pengumuman lama.
 local token = 0
-umumkan.OnClientEvent:Connect(function(nama, waktu, kopi, juara1)
+local event = ReplicatedStorage:WaitForChild("UmumkanMenang")
+event.OnClientEvent:Connect(function(nama, waktu, kopi, juara1)
 	token = token + 1
-	local t = token
-	local gelar = juara1 and "JUARA 1! " or ""
-	label.Text = "🏆 " .. gelar .. nama .. " SAMPAI WARUNG! " .. waktu .. " detik • " .. kopi .. " biji kopi"
+	local myToken = token
+	local teks = "🏆 "
+	if juara1 then
+		teks = teks .. "[JUARA 1!] "
+	end
+	teks = teks .. nama .. " SAMPAI WARUNG! " .. tostring(waktu) .. " detik • " .. tostring(kopi) .. " biji kopi"
+	label.Text = teks
 	label.Visible = true
 	task.wait(7)
-	if t == token then
+	if token == myToken then
 		label.Visible = false
 	end
 end)
