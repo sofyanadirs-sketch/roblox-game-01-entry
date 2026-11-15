@@ -1,17 +1,15 @@
-// Kopi Hitam Rush — entry for make.fun roblox-game-01 ("Make the best Roblox game").
-// Obby sprint to the warung kopi: 105 platforms, 4 checkpoints, 19 coins, lava floor.
-// Place: https://www.roblox.com/games/74871335146001/Kopi-Hitam-Rush (place 74871335146001, universe 10776908406).
-// A working roblox-game-01 entry (Node 22, standard library only): the game is this directory's Rojo
-// project, built into game.rbxl with `rojo build default.project.json --output game.rbxl`, and the program
-// hands it in. It copies game.rbxl, src/, screenshots/ and PLAY.json from beside this file to /output and
-// writes /output/dossier.json, the summary the judge reads, with the vendored make.fun library. A starting
-// point, not a winner: it is a grey square that moves with the arrow keys. Build your game, rebuild
-// game.rbxl, put your PNG or JPEG screenshots in screenshots/ (the first by name is the cover) and fill in
-// PLAY.json with your published place.
-//
+// Kopi Hitam Rush — roblox-game-01 entry (Node 22, standard library only).
+// An obby sprint to the warung kopi: 105 rainbow platforms over lava,
+// 4 golden checkpoints, 19 Biji Kopi coins, moving platforms, spinning
+// fans and puddle traps. The game is this directory's Rojo project,
+// built into game.rbxl with `rojo build default.project.json -o game.rbxl`.
+// This program hands it in: it copies game.rbxl, src/, screenshots/ and
+// PLAY.json from beside this file to /output and writes /output/dossier.json,
+// the summary the judge reads, with the vendored make.fun library.
+// Play it free at the published place (74871335146001):
+// https://www.roblox.com/games/74871335146001/Kopi-Hitam-Rush
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
-
 import { copyFileSync, cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,9 +24,11 @@ cpSync(join(here, 'src'), join(out, 'src'), { recursive: true });
 mkdirSync(join(out, 'screenshots'), { recursive: true });
 if (existsSync(join(here, 'screenshots'))) cpSync(join(here, 'screenshots'), join(out, 'screenshots'), { recursive: true });
 
-// The scorer's own caps (reference/gate.json): only text_max_bytes shapes the bytes; the others refuse an entry the
-// scorer would refuse (more than 4 screenshots or one over 256 KiB; a place of more than 500000 instances, whose
-// scripts' sources come to over 8 MiB or whose scripts' paths come to over 1048576 characters, in all).
+// The scorer's own caps (reference/gate.json): only text_max_bytes shapes
+// the bytes; the others refuse an entry the scorer would refuse (more than
+// 4 screenshots or one over 256 KiB; a place of more than 500000 instances,
+// whose scripts' sources come to over 8 MiB or whose scripts' paths come to
+// over 1048576 characters, in all).
 writeFileSync(
   join(out, 'dossier.json'),
   buildDossier(out, { text_max_bytes: 65536, screenshots: { max: 4, max_bytes: 262144 }, max_instances: 500000, scripts_max_source_bytes: 8388608, scripts_max_path_chars: 1048576 }),
