@@ -1,31 +1,35 @@
--- KopiHitamRushMover.server.lua
--- 1) Menggerakkan platform tertentu bolak-balik (kiri-kanan) pakai TweenService.
---    Platform yang bergerak: Platform25, Platform27, Platform44, Platform61
---    (awal, geser 2 stud) + Platform79, Platform97 (final, geser 3 stud).
---    (Anchored, di-tween CFrame-nya). Semuanya di LEG LURUS (bergerak tegak lurus
---    arah lompat, jadi jarak lompat tidak berubah). Durasi beda-beda biar tidak sinkron.
---    Pemain yang berdiri di atasnya ikut terbawa (perilaku standar Roblox).
--- 2) Memutar bilah kipas pembunuh (KillPart30, KillPart31, KillPart32 di awal,
---    pelan; KillPart33, KillPart34 di final, ngebut) di atas Platform5, Platform46,
---    Platform62, Platform82 dan Platform90. Bilah berputar mengelilingi tiang di
---    tengah platform; kena bilah = mati (ditangani script game utama lewat pola
---    nama ^KillPart%d*$).
--- Kalau di Play ternyata goyang/jitter, hapus Script ini dan platform jadi diam
--- (kipas juga berhenti).
-
+-- Kopi Hitam Rush — mover script (ServerScriptService).
+-- Platform bergerak (tween X bolak-balik selamanya) + kipas pembunuh
+-- berputar (bilah KillPart diputar di tempat). Semua mover ada di jalur
+-- lurus searah Z, jadi tween X tegak lurus arah jalan: jarak lompatan
+-- tidak berubah, pemain tidak jatuh gara-gara platform bergeser.
 local TweenService = game:GetService("TweenService")
 
-local folder = workspace:WaitForChild("KopiHitamRush")
-
 local function gerakkan(nama, jarak, durasi)
-	local part = folder:WaitForChild(nama)
+	local part = workspace:FindFirstChild(nama, true)
+	if not part then
+		return
+	end
 	local awal = part.CFrame
-	local tujuan = awal * CFrame.new(jarak, 0, 0)
-	local info = TweenInfo.new(durasi, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
-	local tween = TweenService:Create(part, info, {CFrame = tujuan})
-	tween:Play()
+	local info = TweenInfo.new(durasi, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
+	local tujuan = { CFrame = awal * CFrame.new(jarak, 0, 0) }
+	TweenService:Create(part, info, tujuan):Play()
 end
 
+local function putar(nama, derajat)
+	local part = workspace:FindFirstChild(nama, true)
+	if not part then
+		return
+	end
+	task.spawn(function()
+		while part.Parent do
+			part.CFrame = part.CFrame * CFrame.Angles(0, math.rad(derajat), 0)
+			task.wait(0.03)
+		end
+	end)
+end
+
+-- Platform bergerak: awal 2 stud (gampang), final 3 stud (sulit).
 gerakkan("Platform25", 2, 3)
 gerakkan("Platform27", 2, 2.5)
 gerakkan("Platform44", 2, 3.5)
@@ -33,16 +37,10 @@ gerakkan("Platform61", 2, 2.8)
 gerakkan("Platform79", 3, 3)
 gerakkan("Platform97", 3, 2.5)
 
-local function putar(nama, derajatPerLangkah)
-	local part = folder:WaitForChild(nama)
-	while true do
-		part.CFrame = part.CFrame * CFrame.Angles(0, math.rad(derajatPerLangkah), 0)
-		task.wait(0.03)
-	end
-end
-
-task.spawn(putar, "KillPart30", 2)
-task.spawn(putar, "KillPart31", 2)
-task.spawn(putar, "KillPart32", 2)
-task.spawn(putar, "KillPart33", 3)
-task.spawn(putar, "KillPart34", 3)
+-- Kipas pembunuh: awal bilah 6 pelan (2 derajat/langkah),
+-- final bilah 8 ngebut (3 derajat/langkah).
+putar("KillPart30", 2)
+putar("KillPart31", 2)
+putar("KillPart32", 2)
+putar("KillPart33", 3)
+putar("KillPart34", 3)
